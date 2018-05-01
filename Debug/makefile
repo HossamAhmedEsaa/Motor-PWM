@@ -11,6 +11,7 @@ GEN_CMDS__FLAG :=
 
 ORDERED_OBJS += \
 "./GPIOConfig.obj" \
+"./Utils.obj" \
 "./main.obj" \
 "./tm4c123gh6pm_startup_ccs.obj" \
 "../tm4c123gh6pm.cmd" \
@@ -156,8 +157,8 @@ Motor-PWM.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(BIN_OUTPUTS__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "GPIOConfig.obj" "main.obj" "tm4c123gh6pm_startup_ccs.obj" 
-	-$(RM) "GPIOConfig.d" "main.d" "tm4c123gh6pm_startup_ccs.d" 
+	-$(RM) "GPIOConfig.obj" "Utils.obj" "main.obj" "tm4c123gh6pm_startup_ccs.obj" 
+	-$(RM) "GPIOConfig.d" "Utils.d" "main.d" "tm4c123gh6pm_startup_ccs.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

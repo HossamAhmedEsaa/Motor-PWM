@@ -117,7 +117,8 @@ int main(void)
 	int rpm = 20;
 
 	int tempo_botao = 0;
-	int cont_botao = 0;
+	int cont_botao_mais = 0;
+	int cont_botao_menos = 0;
 
 	int verificaStatusAumento = 0;
 	int verificaStatusDecremento = 0;
@@ -131,20 +132,18 @@ int main(void)
 		// BOT�O INCREMENTO
 		if (LerPino(PORT_C, P6) == 1)
 		{
-
-			if (cont_botao == 0)
+			if (cont_botao_mais == 0)
 			{
 				tempo_botao = temp_total;
 				rpm = (rpm > 99) ? 100 : ++rpm;
 				writeNumber(rpm);
-				cont_botao++;
+				cont_botao_mais++;
 			}
 
 			if ((temp_total - tempo_botao) > MilliSec(1000))
 			{
 				verificaStatusAumento++;
 				tempo_botao = temp_total;
-				cont_botao = 0;
 			}
 
 			if (verificaStatusAumento == 5)
@@ -156,25 +155,25 @@ int main(void)
 		}
 		else
 		{
+			cont_botao_mais = 0;
 			verificaStatusAumento = 0;
 		}
 
 		// BOT�O DECREMENTO
 		if (LerPino(PORT_C, P5) == 1)
 		{
-			if (cont_botao == 0)
+			if (cont_botao_menos == 0)
 			{
 				tempo_botao = temp_total;
 				rpm = (rpm < 1) ? 0 : --rpm;
 				writeNumber(rpm);
-				cont_botao++;
+				cont_botao_menos++;
 			}
 
 			if ((temp_total - tempo_botao) > MilliSec(1000))
 			{
 				verificaStatusDecremento++;
 				tempo_botao = temp_total;
-				cont_botao = 0;
 			}
 			if (verificaStatusDecremento == 5)
 			{
@@ -185,6 +184,7 @@ int main(void)
 		}
 		else
 		{
+			cont_botao_menos = 0;
 			verificaStatusDecremento = 0;
 		}
 

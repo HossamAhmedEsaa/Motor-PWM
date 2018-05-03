@@ -4,6 +4,7 @@
 
 #include <inttypes.h>
 #include <tm4c123gh6pm.h>
+#include <stdlib.h>
 #include "GPIOConfig.h"
 #include "Utils.h"
 
@@ -56,6 +57,7 @@ int main(void)
 	LigarPort(PORT_B);
 	LigarPort(PORT_E);
 	LigarPort(PORT_A);
+	LigarPort(PORT_D);
 	LigarPort(PORT_C);
 
 	GPIOConfig(PORT_F, LED_RED, OUTPUT);
@@ -87,6 +89,8 @@ int main(void)
 	// BOTOES
 	GPIOConfig(PORT_C, P6, INPUT);
 	GPIOConfig(PORT_C, P5, INPUT);
+	GPIOConfig(PORT_A, P2, INPUT);
+	//GPIOConfig(PORT_D, P2, INPUT);
 
 	SetDen(PORT_F, LED_GREEN);
 	SetDen(PORT_F, LED_RED);
@@ -110,25 +114,28 @@ int main(void)
 	SetDen(PORT_C, P5);
 	SetDen(PORT_A, P3);
 	SetDen(PORT_A, P4);
+	SetDen(PORT_A, P2);
+	SetDen(PORT_D, P2);
 
 	ConfigSysTick();
 	TempoSysTick_us(TEMPO_SYSTICK);
 
 	int rpm = 20;
-
 	int tempo_botao = 0;
 	int cont_botao_mais = 0;
 	int cont_botao_menos = 0;
-
 	int verificaStatusAumento = 0;
 	int verificaStatusDecremento = 0;
 
 	pwm = 0;
 
-	writeNumber(rpm);
+	int start = LOW;
+	int podeExecutar = 0;
 
 	while (1)
 	{
+
+		writeNumber(rpm);
 		// BOT�O INCREMENTO
 		if (LerPino(PORT_C, P6) == 1)
 		{
@@ -191,5 +198,4 @@ int main(void)
 		// CONTROLE
 		PWM(PORT_A, P3, rpm);
 	}
-
 }

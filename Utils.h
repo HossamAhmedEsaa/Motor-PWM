@@ -18,9 +18,4 @@ int countDigits(int i);
  */
 void writeNumber(int number);
 
-/**
- * Retorna os bits do display 1
- */
-uint32_t returnBitsDisplay1(int number);
-
 #endif /* UTILS_H_ */

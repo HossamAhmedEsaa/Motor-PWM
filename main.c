@@ -7,29 +7,32 @@
 #include "GPIOConfig.h"
 #include "Utils.h"
 
-int cont = 0;
+#define TEMPO_SYSTICK 50
+
+int pwm = 0;
 uint32_t temp_total = 0;
 
 void InterruptSystick(void)
 {
-	cont++;
-	if (cont == 100)
+	pwm++;
+	if (pwm == 100)
 	{
-		cont = 0;
+		pwm = 0;
 	}
+
 	temp_total++;
 }
 
 void PWM(int PORTA, int PINO, int taxa)
 {
 
-	if (cont < taxa)
+	if (pwm < taxa)
 	{
 		SetPino(PORTA, PINO, HIGH);
 		return;
 	}
 
-	if (cont < 100)
+	if (pwm < 100)
 	{
 		SetPino(PORTA, PINO, LOW);
 		return;
@@ -37,12 +40,16 @@ void PWM(int PORTA, int PINO, int taxa)
 
 }
 
-void delay(int ms)
+uint32_t MilliSec(int ms)
 {
+	ms = (ms / TEMPO_SYSTICK) * 1000;
 	int start_temp = temp_total;
-	while ((temp_total - start_temp) < ms)
-		;
 
+}
+
+uint32_t millis()
+{
+	return temp_total * TEMPO_SYSTICK / 1000;
 }
 
 int main(void)
@@ -75,6 +82,10 @@ int main(void)
 	GPIOConfig(PORT_E, P5, OUTPUT);
 	GPIOConfig(PORT_A, P6, OUTPUT);
 
+	//MOTOR
+	GPIOConfig(PORT_A, P3, OUTPUT);
+
+	// BOTOES
 	GPIOConfig(PORT_C, P6, INPUT);
 	GPIOConfig(PORT_C, P5, INPUT);
 
@@ -98,25 +109,45 @@ int main(void)
 	SetDen(PORT_A, P6);
 	SetDen(PORT_C, P6);
 	SetDen(PORT_C, P5);
+	SetDen(PORT_A, P3);
 
 	ConfigSysTick();
-	TempoSysTick_us(30);
+	TempoSysTick_us(TEMPO_SYSTICK);
 
-	int brilho = 0;
 	int rpm = 20;
-	uint32_t temp = 0;
 
-	cont = 0;
+	int tempo_botao = 0;
+	int tempoAntigo = 0;
+	int cont_botao = 0;
+	int verificaStatus = 0;
+	pwm = 0;
+
 	writeNumber(rpm);
+
 	while (1)
 	{
 
 		if (LerPino(PORT_C, P6) == 1)
 		{
-			rpm = (rpm > 98) ? 99 : ++rpm;
+			cont_botao++;
+			if (cont_botao)
+			{
+				tempo_botao = temp_total;
+				rpm = (rpm > 98) ? 99 : ++rpm;
+				writeNumber(rpm);
+			}
 
-			writeNumber(rpm);
-			delay(5000);
+			if ((temp_total - tempo_botao) > MilliSec(1000))
+			{
+				verificaStatus ++;
+
+			}
+
+
+		}
+		else
+		{
+			cont_botao = 0;
 		}
 
 		if (LerPino(PORT_C, P5) == 1)
@@ -124,21 +155,9 @@ int main(void)
 			rpm = (rpm < 2) ? 1 : --rpm;
 
 			writeNumber(rpm);
-			delay(5000);
 		}
 
-		if ((temp_total - temp) == 1000)
-		{
-			temp = temp_total;
-			brilho++;
-		}
-
-		if (brilho == 100)
-		{
-			brilho = 0;
-		}
-
-		PWM(PORT_F, LED_GREEN, brilho);
+		PWM(PORT_A, P3, rpm);
 	}
 
 }

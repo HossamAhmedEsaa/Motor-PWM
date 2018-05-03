@@ -282,9 +282,9 @@ int LerPino_Dir(int PORTA, int PINO)
 	return 0;
 }
 
-void TempoSysTick_us(int ns)
-{
-	uint32_t t = ns * 4;
+void TempoSysTick_us(int us) {
+
+	uint32_t t = us * 4;
 
 	NVIC_ST_RELOAD_R = t;
 }

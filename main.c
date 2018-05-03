@@ -19,7 +19,6 @@ void InterruptSystick(void)
 	{
 		pwm = 0;
 	}
-
 	temp_total++;
 }
 
@@ -42,8 +41,7 @@ void PWM(int PORTA, int PINO, int taxa)
 
 uint32_t MilliSec(int ms)
 {
-	ms = (ms / TEMPO_SYSTICK) * 1000;
-	int start_temp = temp_total;
+	return (ms / TEMPO_SYSTICK) * 1000;
 
 }
 
@@ -77,6 +75,7 @@ int main(void)
 	GPIOConfig(PORT_E, P0, OUTPUT);
 	GPIOConfig(PORT_E, P1, OUTPUT);
 	GPIOConfig(PORT_E, P2, OUTPUT);
+
 	GPIOConfig(PORT_E, P3, OUTPUT);
 	GPIOConfig(PORT_E, P4, OUTPUT);
 	GPIOConfig(PORT_E, P5, OUTPUT);
@@ -117,48 +116,79 @@ int main(void)
 	int rpm = 20;
 
 	int tempo_botao = 0;
-	int tempoAntigo = 0;
+
 	int cont_botao = 0;
-	int verificaStatus = 0;
+
+	int verificaStatusAumento = 0;
+	int verificaStatusDecremento = 0;
+
 	pwm = 0;
 
 	writeNumber(rpm);
 
 	while (1)
 	{
-
+		// BOT�O INCREMENTO
 		if (LerPino(PORT_C, P6) == 1)
 		{
-			cont_botao++;
-			if (cont_botao)
+
+			if (cont_botao == 0)
 			{
 				tempo_botao = temp_total;
 				rpm = (rpm > 98) ? 99 : ++rpm;
 				writeNumber(rpm);
+				cont_botao++;
 			}
 
 			if ((temp_total - tempo_botao) > MilliSec(1000))
 			{
-				verificaStatus ++;
-
+				verificaStatusAumento++;
+				tempo_botao = temp_total;
+				cont_botao = 0;
 			}
 
-
+			if (verificaStatusAumento == 5)
+			{
+				rpm = (rpm > 98) ? 99 : ++rpm;
+				writeNumber(rpm);
+				verificaStatusAumento--;
+			}
 		}
 		else
 		{
-			cont_botao = 0;
+			verificaStatusAumento = 0;
 		}
 
+		// BOT�O DECREMENTO
 		if (LerPino(PORT_C, P5) == 1)
 		{
-			rpm = (rpm < 2) ? 1 : --rpm;
-
-			writeNumber(rpm);
+			if (cont_botao == 0)
+			{
+				tempo_botao = temp_total;
+				rpm = (rpm < 2) ? 1 : --rpm;
+				writeNumber(rpm);
+				cont_botao++;
+			}
+			if ((temp_total - tempo_botao) > MilliSec(1000))
+			{
+				verificaStatusDecremento++;
+				tempo_botao = temp_total;
+				cont_botao = 0;
+			}
+			if (verificaStatusDecremento == 5)
+			{
+				rpm = (rpm < 2) ? 1 : --rpm;
+				writeNumber(rpm);
+				verificaStatusDecremento--;
+			}
+		}
+		else
+		{
+			verificaStatusDecremento = 0;
 		}
 
+		// CONTROLE
 		PWM(PORT_A, P3, rpm);
 	}
 
 }
-
